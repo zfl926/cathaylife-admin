@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+          
+    <util:properties id="jdbc" location="classpath:jdbc.properties"/>      
+           
+	<context:component-scan base-package="com.cathaylife">
+      	<context:exclude-filter type="regex" expression=".webapp.resource.*"/>
+      	<context:exclude-filter type="regex" expression=".webapp.controller.*"/>
+	</context:component-scan>     
+       
+    <!--For data source-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="#{jdbc.driver}"/>
+        <property name="jdbcUrl" value="#{jdbc.url}"/>
+        <property name="user" value="#{jdbc.user}"/>
+        <property name="password" value="#{jdbc.password}"/>
+        <property name="minPoolSize" value="#{jdbc.minpoolsize}"/>
+        <property name="maxPoolSize" value="#{jdbc.maxpoolsize}"/>
+        <property name="initialPoolSize" value="#{jdbc.initialpoolsize}"/>
+        <property name="acquireIncrement" value="#{jdbc.acquireincrement}"/>
+        <property name="maxIdleTime" value="#{jdbc.maxidletime}"/>
+        <property name="idleConnectionTestPeriod" value="#{jdbc.idleconnectiontestperiod}"/>
+        <property name="maxStatements" value="#{jdbc.maxstatements}"/>
+        <property name="acquireRetryAttempts" value="#{jdbc.acquireRetryAttempts}"/>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    
+    <!-- mybatis setting -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.cathaylife.admin.persist.domain"/>
+    </bean>
+    
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.cathaylife.admin.persist"/>
+    </bean>       
+       
+           
+</beans>
